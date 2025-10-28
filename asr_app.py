@@ -6,6 +6,7 @@ import librosa
 from tempfile import NamedTemporaryFile
 import os
 import soundfile as sf
+import torch
 
 st.set_page_config(page_title="Swahili ASR & Translation", layout="wide")
 
