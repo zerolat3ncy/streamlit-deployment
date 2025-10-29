@@ -14,7 +14,8 @@ st.title("Nyanja Speech Recognition and Translation")
 
 @st.cache_resource
 def load_models():
-    whisper_model = WhisperModel("zerolat3ncy/faster-whisper-small-nya-tknEN", device="cpu", compute_type="int8")
+    # whisper_model = WhisperModel("zerolat3ncy/faster-whisper-small-nya-tknEN", device="cpu", compute_type="int8")
+    whisper_model = WhisperModel("dmatekenya/whisper-large-v3-chichewa", device="cpu", compute_type="int8")
     translation_model = pipeline("translation", model="helsinki-nlp/opus-mt-ny-en", device="cpu")
     return whisper_model, translation_model
 
