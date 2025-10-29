@@ -1,5 +1,5 @@
 import streamlit as st
-from faster_whisper import WhisperModel
+import whisper
 from transformers import pipeline
 import numpy as np
 import librosa
@@ -8,14 +8,14 @@ import os
 import soundfile as sf
 import torch
 
-st.set_page_config(page_title="Swahili ASR & Translation", layout="wide")
+st.set_page_config(page_title="Nyanja ASR & Translation", layout="wide")
 
 st.title("Nyanja Speech Recognition and Translation")
 
 @st.cache_resource
 def load_models():
-    # whisper_model = WhisperModel("zerolat3ncy/faster-whisper-small-nya-tknEN", device="cpu", compute_type="int8")
-    whisper_model = WhisperModel("dmatekenya/whisper-large-v3-chichewa", device="cpu", compute_type="int8")
+    whisper_model = whisper.load_model("dmatekenya/whisper-large-v3-chichewa")
+    
     translation_model = pipeline("translation", model="helsinki-nlp/opus-mt-ny-en", device="cpu")
     return whisper_model, translation_model
 
@@ -34,19 +34,13 @@ def convert_audio(audio_bytes):
     return converted_path
 
 def transcribe(model, audio_path):
-    segments, info = model.transcribe(
+    result = model.transcribe(
         audio_path,
-        language="sn",
-        beam_size=5,
-        vad_filter=True,
-        vad_parameters=dict(min_silence_duration_ms=500)
+        language="sn",  
+        fp16=False  
     )
     
-    transcription = ""
-    for segment in segments:
-        transcription += segment.text + " "
-    
-    return transcription.strip()
+    return result["text"].strip()
 
 def translate(model, text):
     if not text or text.strip() == "":
@@ -113,8 +107,12 @@ if audio_data is not None:
                     os.unlink(tmp_path)
                 tmp_path = converted_path
             
-            transcription = transcribe(whisper_model, tmp_path)
-            translation = translate(translation_model, transcription)
+            # Show progress
+            with st.spinner("Transcribing audio..."):
+                transcription = transcribe(whisper_model, tmp_path)
+            
+            with st.spinner("Translating..."):
+                translation = translate(translation_model, transcription)
             
             col_a, col_b = st.columns(2)
             
@@ -144,3 +142,11 @@ if audio_data is not None:
         finally:
             if 'tmp_path' in locals() and os.path.exists(tmp_path):
                 os.unlink(tmp_path)
+
+# Add some info about the models
+with st.expander("Model Information"):
+    st.write("""
+    **Speech Recognition**: OpenAI Whisper Large v3 model
+    **Translation**: Helsinki-NLP OPUS-MT Nyanja to English model
+    **Language**: Nyanja (Chichewa) - language code 'ny'
+    """)
