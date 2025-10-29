@@ -36,7 +36,7 @@ def convert_audio(audio_bytes):
 def transcribe(model, audio_path):
     segments, info = model.transcribe(
         audio_path,
-        language="en",
+        language="sn",
         beam_size=5,
         vad_filter=True,
         vad_parameters=dict(min_silence_duration_ms=500)
