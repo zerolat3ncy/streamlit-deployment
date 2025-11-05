@@ -15,7 +15,7 @@ st.title("Chichewa Speech Recognition and Translation")
 @st.cache_resource
 def load_models():
     whisper_model = WhisperModel("zerolat3ncy/faster-whisper-medium-chichewa", device="cpu", compute_type="int8")
-    translation_model = pipeline("translation", model="zerolat3ncy/nllb-financial-chichewa-to-en", device="cpu")
+    translation_model = pipeline("translation", model="zerolat3ncy/nllb-financial-nya-en", device="cpu")
     return whisper_model, translation_model
 
 def convert_audio(audio_bytes):
